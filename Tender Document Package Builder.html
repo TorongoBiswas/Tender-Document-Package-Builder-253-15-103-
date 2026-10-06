@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tender Document Package Builder | AI DevFest 2026</title>
+  
+  <!-- Fonts: Inter and Hind Siliguri for Bangla typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Hind Siliguri', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18, ReactDOM 18, Babel standalone, and PDF-Lib CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const TRANSLATIONS = {
+      en: {
+        appTitle: "Tender Document Package Builder",
+        appSubtitle: "AI DevFest 2026 Solo Vibe-Coding Contest",
+        langToggle: "বাংলা",
+        loadSampleData: "Load Sample Tender",
+        uploadJson: "Upload requirements.json",
+        tenderMetaTitle: "Tender Details",
+        tenderId: "Tender ID",
+        title: "Tender Title",
+        procuringEntity: "Procuring Entity",
+        bidder: "Bidder Name",
+        deadline: "Submission Deadline",
+        uploadPdfsHeader: "Upload Tender PDF Documents",
+        dragDropText: "Click or Drag & Drop PDF files here",
+        pdfOnlyWarning: "Only PDF files up to 50MB total are accepted",
+        filesUploaded: "Uploaded PDF Files",
+        noFilesYet: "No PDF files uploaded yet.",
+        pageCount: "pages",
+        duplicateBadge: "DUPLICATE CONTENT",
+        duplicateTooltip: "Exact file content already uploaded. Cannot be matched.",
+        corruptBadge: "INVALID / PROTECTED PDF",
+        removeFile: "Remove",
+        checklistHeader: "Document Matching Checklist",
+        orderHeader: "Order",
+        requirementHeader: "Required Document",
+        typeHeader: "Requirement",
+        matchedFileHeader: "Matched File",
+        expiryDateHeader: "Expiry Date",
+        statusHeader: "Status",
+        selectFilePrompt: "-- Select Matched PDF --",
+        mandatory: "Mandatory",
+        optional: "Optional",
+        autoMatchBtn: "Auto-Match Files",
+        resetMatchesBtn: "Reset All Matches",
+        saveProgressBtn: "Save Progress",
+        loadProgressBtn: "Restore Progress",
+        exportCsvBtn: "Export CSV Checklist",
+        generatePackageBtn: "Generate & Download Package PDF",
+        statusMissing: "Missing",
+        statusExpiryNeeded: "Expiry Needed",
+        statusExpired: "Expired",
+        statusNotProvided: "Not Provided",
+        statusOk: "OK",
+        blockingNotice: "Resolve all blocking issues (Missing, Expired, Expiry Needed, or Duplicates) to enable PDF package creation.",
+        nonPdfErrorTitle: "Invalid File Format",
+        nonPdfErrorMsg: "File '{filename}' is not a valid PDF file and was rejected.",
+        duplicateMatchedTitle: "Duplicate File Selection Error",
+        duplicateMatchedMsg: "File '{filename}' has duplicate content identical to another uploaded file. Please remove the duplicate before proceeding.",
+        packageGeneratedSuccess: "Tender document package successfully generated!",
+        aiHelpTitle: "AI Tender Assistant (Optional)",
+        aiPromptPlaceholder: "Ask AI for compliance check or file matching advice...",
+        aiApiKeyPrompt: "Enter your Gemini/OpenAI API key (Stored locally only)",
+        aiSubmitBtn: "Analyze with AI",
+        aiDisclaimer: "Rule 5.5: Key is never transmitted to servers or committed to repo."
+      },
+      bn: {
+        appTitle: "টেন্ডার ডকুমেন্ট প্যাকেজ বিল্ডার",
+        appSubtitle: "এআই ডেভফেস্ট ২০২৬ সোলো ভাইব-কোডিং কনটেস্ট",
+        langToggle: "English",
+        loadSampleData: "স্যাম্পল টেন্ডার লোড করুন",
+        uploadJson: "requirements.json আপলোড করুন",
+        tenderMetaTitle: "টেন্ডার বিবরণী",
+        tenderId: "টেন্ডার আইডি",
+        title: "টেন্ডারের শিরোনাম",
+        procuringEntity: "প্রোকিউরিং এনটিটি",
+        bidder: "বিডারের নাম",
+        deadline: "জমা দেওয়ার শেষ তারিখ",
+        uploadPdfsHeader: "টেন্ডার পিডিএফ ফাইল আপলোড করুন",
+        dragDropText: "পিডিএফ ফাইল সিলেক্ট বা ড্রাগ-অ্যান্ড-ড্রপ করুন",
+        pdfOnlyWarning: "শুধু পিডিএফ ফাইল গ্রহণযোগ্য (সর্বোচ্চ ৫০ মেগাবাইট)",
+        filesUploaded: "আপলোডকৃত পিডিএফ ফাইলসমূহ",
+        noFilesYet: "এখনো কোনো পিডিএফ ফাইল আপলোড করা হয়নি।",
+        pageCount: "পৃষ্ঠা",
+        duplicateBadge: "ডুপ্লিকেট কন্টেন্ট",
+        duplicateTooltip: "একই কন্টেন্টের ফাইল ইতিমধ্যে আপলোড করা হয়েছে।",
+        corruptBadge: "ত্রুটিপূর্ণ / পাসওয়ার্ড প্রটেক্টেড",
+        removeFile: "মুছে ফেলুন",
+        checklistHeader: "নথিপত্র ম্যাচিং চেকলিস্ট",
+        orderHeader: "ক্রম",
+        requirementHeader: "প্রয়োজনীয় নথিপত্র",
+        typeHeader: "ধরন",
+        matchedFileHeader: "ম্যাচকৃত ফাইল",
+        expiryDateHeader: "মেয়াদ উত্তীর্ণের তারিখ",
+        statusHeader: "স্ট্যাটাস",
+        selectFilePrompt: "-- সংযুক্ত ফাইল নির্বাচন করুন --",
+        mandatory: "আবশ্যক",
+        optional: "ঐচ্ছিক",
+        autoMatchBtn: "স্বয়ংক্রিয় ম্যাচ করুন",
+        resetMatchesBtn: "ম্যাচ রিসেট করুন",
+        saveProgressBtn: "কাজের অগ্রগতি সেভ করুন",
+        loadProgressBtn: "রিস্টোর করুন",
+        exportCsvBtn: "সিএসভি চেকলিস্ট এক্সপোর্ট",
+        generatePackageBtn: "প্যাকেজ পিডিএফ তৈরি ও ডাউনলোড করুন",
+        statusMissing: "অনুপস্থিত",
+        statusExpiryNeeded: "তারিখ প্রয়োজন",
+        statusExpired: "মেয়াদউত্তীর্ণ",
+        statusNotProvided: "প্রদান করা হয়নি",
+        statusOk: "ঠিক আছে",
+        blockingNotice: "প্যাকেজ পিডিএফ তৈরি করতে সকল ব্লক করা সমস্যা (অনুপস্থিত, মেয়াদউত্তীর্ণ বা ডুপ্লিকেট ফাইল) সমাধান করুন।",
+        nonPdfErrorTitle: "অকার্যকর ফাইল ফরম্যাট",
+        nonPdfErrorMsg: "'{filename}' ফাইলটি পিডিএফ নয় এবং বাতিল করা হয়েছে।",
+        duplicateMatchedTitle: "ডুপ্লিকেট ফাইল সিলেকশন ত্রুটি",
+        duplicateMatchedMsg: "'{filename}' ফাইলটির কন্টেন্ট অন্য ফাইলের হুবহু এক। অনুগ্রহ করে ডুপ্লিকেট সমাধান করুন।",
+        packageGeneratedSuccess: "টেন্ডার ডকুমেন্ট প্যাকেজ সফলভাবে তৈরি হয়েছে!",
+        aiHelpTitle: "এআই টেন্ডার অ্যাসিস্ট্যান্ট (ঐচ্ছিক)",
+        aiPromptPlaceholder: "টেন্ডার কমপ্লায়েন্স বা ফাইল ম্যাচিং সম্পর্কে এআই প্রশ্ন করুন...",
+        aiApiKeyPrompt: "আপনার এআই এপিআই কি দিন (শুধু ব্রাউজারে সংরক্ষিত থাকবে)",
+        aiSubmitBtn: "এআই অ্যানালাইসিস করুন",
+        aiDisclaimer: "রুল ৫.৫: কোনো এপিআই কি কোড বা সার্ভারে সেভ হবে না।"
+      }
+    };
+
+    const SAMPLE_REQUIREMENTS_JSON = {
+      "tender": {
+        "tender_id": "T-2026-0417",
+        "title": "Supply of IT Equipment",
+        "procuring_entity": "Example Directorate",
+        "bidder": "Example Company Ltd.",
+        "submission_deadline": "2026-10-20"
+      },
+      "requirements": [
+        { "id": "R01", "order": 1, "title_en": "Trade License", "title_bn": "ট্রেড লাইসেন্স", "mandatory": true, "has_expiry": true },
+        { "id": "R02", "order": 2, "title_en": "TIN Certificate", "title_bn": "টিআইএন সার্টিফিকেট", "mandatory": true, "has_expiry": false },
+        { "id": "R03", "order": 3, "title_en": "VAT Certificate", "title_bn": "ভ্যাট সার্টিফিকেট", "mandatory": true, "has_expiry": false },
+        { "id": "R04", "order": 4, "title_en": "Bank Solvency Letter", "title_bn": "ব্যাংক সলভেন্সি লেটার", "mandatory": true, "has_expiry": false },
+        { "id": "R05", "order": 5, "title_en": "Technical Proposal", "title_bn": "কারিগরি প্রস্তাবনা", "mandatory": true, "has_expiry": false },
+        { "id": "R06", "order": 6, "title_en": "Financial Proposal", "title_bn": "আর্থিক প্রস্তাবনা", "mandatory": true, "has_expiry": false },
+        { "id": "R07", "order": 7, "title_en": "Experience Certificate", "title_bn": "অভিজ্ঞতার সনদপত্র", "mandatory": false, "has_expiry": false }
+      ]
+    };
+
+    const IconFileText = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    );
+    const IconUpload = () => (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+    );
+    const IconCheckCircle = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    );
+    const IconAlertTriangle = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    );
+    const IconAlertCircle = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    );
+    const IconDownload = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+    );
+    const IconGlobe = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+    );
+    const IconTrash = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+    );
+    const IconRefresh = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+    );
+    const IconSave = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+    );
+    const IconSpreadsheet = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    );
+    const IconSparkles = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+    );
+    const IconX = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    );
+
+    async function calculateSHA256(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (err) {
+        console.error("SHA256 computation failed:", err);
+        return Math.random().toString(36).substring(2);
+      }
+    }
+
+    async function readPdfInfo(file) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        const pageCount = pdfDoc.getPageCount();
+        return { valid: true, pageCount, arrayBuffer };
+      } catch (err) {
+        console.warn(`PDF reading failed for ${file.name}:`, err);
+        return { valid: false, pageCount: 0, error: err.message };
+      }
+    }
+
+    function computeDocumentStatus(req, matchedFile, expiryDate, submissionDeadline) {
+      if (!matchedFile) {
+        return req.mandatory ? 'MISSING' : 'NOT_PROVIDED';
+      }
+
+      if (matchedFile.isDuplicate) {
+        return 'MISSING'; // Duplicates are blocked
+      }
+
+      if (req.has_expiry) {
+        if (!expiryDate) {
+          return 'EXPIRY_NEEDED';
+        }
+        const exp = new Date(expiryDate);
+        const deadline = new Date(submissionDeadline);
+        exp.setHours(0,0,0,0);
+        deadline.setHours(0,0,0,0);
+
+        if (exp < deadline) {
+          return 'EXPIRED';
+        }
+      }
+
+      return 'OK';
+    }
+
+    async function generatePdfPackage(tenderData, matchedDocsList) {
+      const mergedPdf = await PDFLib.PDFDocument.create();
+      const fontRegular = await mergedPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+      const fontBold = await mergedPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+      const { tender_id, title, procuring_entity, bidder, submission_deadline } = tenderData.tender;
+      const dateGenerated = new Date().toISOString().split('T')[0];
+
+      const activeDocs = matchedDocsList
+        .filter(item => item.file && item.file.valid)
+        .sort((a, b) => a.req.order - b.req.order);
+
+      // --- 1. COVER PAGE ---
+      const coverPage = mergedPdf.addPage([595.28, 841.89]);
+      const { width, height } = coverPage.getSize();
+
+      coverPage.drawRectangle({
+        x: 0,
+        y: height - 100,
+        width: width,
+        height: 100,
+        color: PDFLib.rgb(0.09, 0.23, 0.45)
+      });
+
+      coverPage.drawText("TENDER DOCUMENT PACKAGE", {
+        x: 40,
+        y: height - 55,
+        size: 22,
+        font: fontBold,
+        color: PDFLib.rgb(1, 1, 1)
+      });
+
+      coverPage.drawText("Official Bid Submission Package", {
+        x: 40,
+        y: height - 75,
+        size: 11,
+        font: fontRegular,
+        color: PDFLib.rgb(0.8, 0.9, 1)
+      });
+
+      let currentY = height - 140;
+      const drawMetaRow = (label, value) => {
+        coverPage.drawText(label, { x: 40, y: currentY, size: 10, font: fontBold, color: PDFLib.rgb(0.2, 0.3, 0.4) });
+        coverPage.drawText(value || 'N/A', { x: 180, y: currentY, size: 10, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+        currentY -= 20;
+      };
+
+      drawMetaRow("Tender ID:", tender_id);
+      drawMetaRow("Tender Title:", title);
+      drawMetaRow("Procuring Entity:", procuring_entity);
+      drawMetaRow("Bidder Name:", bidder);
+      drawMetaRow("Submission Deadline:", submission_deadline);
+      drawMetaRow("Package Date:", dateGenerated);
+
+      currentY -= 10;
+      coverPage.drawLine({
+        start: { x: 40, y: currentY },
+        end: { x: width - 40, y: currentY },
+        thickness: 1,
+        color: PDFLib.rgb(0.85, 0.85, 0.85)
+      });
+
+      currentY -= 30;
+      coverPage.drawText("INCLUDED DOCUMENTS SUMMARY", {
+        x: 40,
+        y: currentY,
+        size: 13,
+        font: fontBold,
+        color: PDFLib.rgb(0.09, 0.23, 0.45)
+      });
+
+      currentY -= 20;
+      coverPage.drawRectangle({
+        x: 40,
+        y: currentY - 5,
+        width: width - 80,
+        height: 20,
+        color: PDFLib.rgb(0.93, 0.95, 0.98)
+      });
+
+      coverPage.drawText("#", { x: 45, y: currentY, size: 9, font: fontBold });
+      coverPage.drawText("Document Title (EN)", { x: 70, y: currentY, size: 9, font: fontBold });
+      coverPage.drawText("File Name", { x: 260, y: currentY, size: 9, font: fontBold });
+      coverPage.drawText("Pages", { x: 450, y: currentY, size: 9, font: fontBold });
+      coverPage.drawText("Expiry Date", { x: 500, y: currentY, size: 9, font: fontBold });
+
+      currentY -= 20;
+
+      activeDocs.forEach((docItem) => {
+        coverPage.drawText(`${docItem.req.order}`, { x: 45, y: currentY, size: 9, font: fontRegular });
+        
+        const truncatedTitle = docItem.req.title_en.length > 32 ? docItem.req.title_en.substring(0, 30) + '..' : docItem.req.title_en;
+        coverPage.drawText(truncatedTitle, { x: 70, y: currentY, size: 9, font: fontRegular });
+
+        const truncatedFile = docItem.file.name.length > 32 ? docItem.file.name.substring(0, 30) + '..' : docItem.file.name;
+        coverPage.drawText(truncatedFile, { x: 260, y: currentY, size: 9, font: fontRegular });
+
+        coverPage.drawText(`${docItem.file.pageCount}`, { x: 450, y: currentY, size: 9, font: fontRegular });
+        coverPage.drawText(docItem.expiryDate || 'N/A', { x: 500, y: currentY, size: 9, font: fontRegular });
+
+        currentY -= 18;
+      });
+
+      // --- 2. INDEX / TABLE OF CONTENTS PAGE ---
+      const indexPage = mergedPdf.addPage([595.28, 841.89]);
+      let indexY = height - 60;
+
+      indexPage.drawText("TABLE OF CONTENTS & PAGE INDEX", {
+        x: 40,
+        y: indexY,
+        size: 18,
+        font: fontBold,
+        color: PDFLib.rgb(0.09, 0.23, 0.45)
+      });
+
+      indexY -= 30;
+      indexPage.drawRectangle({
+        x: 40,
+        y: indexY - 5,
+        width: width - 80,
+        height: 22,
+        color: PDFLib.rgb(0.93, 0.95, 0.98)
+      });
+
+      indexPage.drawText("Order", { x: 50, y: indexY, size: 10, font: fontBold });
+      indexPage.drawText("Document Title", { x: 100, y: indexY, size: 10, font: fontBold });
+      indexPage.drawText("Total Pages", { x: 360, y: indexY, size: 10, font: fontBold });
+      indexPage.drawText("Starts at Page", { x: 460, y: indexY, size: 10, font: fontBold });
+
+      indexY -= 25;
+      let currentDocStartPage = 3;
+
+      activeDocs.forEach((docItem) => {
+        const startPg = currentDocStartPage;
+
+        indexPage.drawText(`[${docItem.req.order}]`, { x: 50, y: indexY, size: 10, font: fontRegular });
+        indexPage.drawText(docItem.req.title_en, { x: 100, y: indexY, size: 10, font: fontRegular });
+        indexPage.drawText(`${docItem.file.pageCount}`, { x: 380, y: indexY, size: 10, font: fontRegular });
+        indexPage.drawText(`Page ${startPg}`, { x: 470, y: indexY, size: 10, font: fontBold, color: PDFLib.rgb(0.1, 0.4, 0.8) });
+
+        indexY -= 22;
+        currentDocStartPage += docItem.file.pageCount;
+      });
+
+      // --- 3. MERGE DOCUMENT PAGES ---
+      for (const item of activeDocs) {
+        const srcPdf = await PDFLib.PDFDocument.load(item.file.arrayBuffer, { ignoreEncryption: true });
+        const copiedPages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+        copiedPages.forEach(page => mergedPdf.addPage(page));
+      }
+
+      // --- 4. DRAW FOOTERS ---
+      const totalPages = mergedPdf.getPageCount();
+      const allPages = mergedPdf.getPages();
+
+      for (let i = 0; i < totalPages; i++) {
+        const page = allPages[i];
+        const pageNumText = `${tender_id} | Page ${i + 1} of ${totalPages}`;
+        
+        page.drawRectangle({
+          x: 40,
+          y: 12,
+          width: width - 80,
+          height: 18,
+          color: PDFLib.rgb(0.97, 0.98, 0.99),
+          borderColor: PDFLib.rgb(0.9, 0.9, 0.9),
+          borderWidth: 0.5
+        });
+
+        page.drawText(pageNumText, {
+          x: width / 2 - 70,
+          y: 17,
+          size: 8.5,
+          font: fontRegular,
+          color: PDFLib.rgb(0.3, 0.3, 0.3)
+        });
+      }
+
+      const pdfBytes = await mergedPdf.save();
+      return new Blob([pdfBytes], { type: 'application/pdf' });
+    }
+
+    function exportChecklistCsv(tenderData, requirements, matches, uploadedFiles, expiryDates, lang) {
+      const headers = ["Order", "Title (EN)", "Title (BN)", "Type", "Matched File", "Pages", "Expiry Date", "Status"];
+      const rows = requirements.sort((a,b) => a.order - b.order).map(req => {
+        const file = uploadedFiles.find(f => f.name === matches[req.id]);
+        const status = computeDocumentStatus(req, file, expiryDates[req.id], tenderData.tender.submission_deadline);
+        return [
+          req.order,
+          `"${req.title_en}"`,
+          `"${req.title_bn}"`,
+          req.mandatory ? "Mandatory" : "Optional",
+          file ? `"${file.name}"` : "None",
+          file ? file.pageCount : 0,
+          expiryDates[req.id] || "N/A",
+          status
+        ];
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${tenderData.tender.tender_id}_Checklist.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function App() {
+      const [lang, setLang] = React.useState('en');
+      const [tenderData, setTenderData] = React.useState(SAMPLE_REQUIREMENTS_JSON);
+      const [uploadedFiles, setUploadedFiles] = React.useState([]);
+      const [matches, setMatches] = React.useState({});
+      const [expiryDates, setExpiryDates] = React.useState({});
+      const [isGenerating, setIsGenerating] = React.useState(false);
+      const [modalNotification, setModalNotification] = React.useState(null);
+      
+      const [aiKey, setAiKey] = React.useState(() => localStorage.getItem("ai_api_key") || "");
+      const [aiPrompt, setAiPrompt] = React.useState("");
+      const [aiResult, setAiResult] = React.useState("");
+      const [aiLoading, setAiLoading] = React.useState(false);
+
+      const t = TRANSLATIONS[lang];
+
+      const handleFileUpload = async (e) => {
+        const filesArr = Array.from(e.target.files || []);
+        if (filesArr.length === 0) return;
+
+        let nonPdfDetected = false;
+        let rejectedFileName = '';
+
+        const newlyProcessedFiles = [];
+
+        for (const file of filesArr) {
+          if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+            nonPdfDetected = true;
+            rejectedFileName = file.name;
+            continue;
+          }
+
+          const hash = await calculateSHA256(file);
+          const pdfInfo = await readPdfInfo(file);
+
+          newlyProcessedFiles.push({
+            id: Math.random().toString(36).substring(2, 9),
+            name: file.name,
+            size: file.size,
+            hash: hash,
+            valid: pdfInfo.valid,
+            pageCount: pdfInfo.pageCount,
+            arrayBuffer: pdfInfo.arrayBuffer,
+            error: pdfInfo.error,
+            fileObj: file
+          });
+        }
+
+        if (nonPdfDetected) {
+          setModalNotification({
+            title: t.nonPdfErrorTitle,
+            msg: t.nonPdfErrorMsg.replace('{filename}', rejectedFileName),
+            type: 'error'
+          });
+        }
+
+        if (newlyProcessedFiles.length === 0) return;
+
+        const combinedFiles = [...uploadedFiles, ...newlyProcessedFiles];
+        const hashCounts = combinedFiles.reduce((acc, f) => {
+          acc[f.hash] = (acc[f.hash] || 0) + 1;
+          return acc;
+        }, {});
+
+        const updatedFiles = combinedFiles.map(f => ({
+          ...f,
+          isDuplicate: hashCounts[f.hash] > 1
+        }));
+
+        setUploadedFiles(updatedFiles);
+        e.target.value = '';
+      };
+
+      const handleRemoveFile = (fileName) => {
+        const filtered = uploadedFiles.filter(f => f.name !== fileName);
+        
+        const hashCounts = filtered.reduce((acc, f) => {
+          acc[f.hash] = (acc[f.hash] || 0) + 1;
+          return acc;
+        }, {});
+
+        const updatedFiles = filtered.map(f => ({
+          ...f,
+          isDuplicate: hashCounts[f.hash] > 1
+        }));
+
+        setUploadedFiles(updatedFiles);
+
+        const newMatches = { ...matches };
+        Object.keys(newMatches).forEach(reqId => {
+          if (newMatches[reqId] === fileName) {
+            delete newMatches[reqId];
+          }
+        });
+        setMatches(newMatches);
+      };
+
+      const handleAutoMatch = () => {
+        const newMatches = { ...matches };
+        const availableFiles = uploadedFiles.filter(f => f.valid && !f.isDuplicate);
+
+        tenderData.requirements.forEach(req => {
+          if (newMatches[req.id]) return;
+
+          const titleEnLower = req.title_en.toLowerCase();
+          const titleBnLower = req.title_bn.toLowerCase();
+
+          const matchedFile = availableFiles.find(f => {
+            const alreadyAssigned = Object.values(newMatches).includes(f.name);
+            if (alreadyAssigned) return false;
+
+            const fnameLower = f.name.toLowerCase();
+
+            if (titleEnLower.includes("trade") && (fnameLower.includes("trade") || fnameLower.includes("license"))) return true;
+            if (titleEnLower.includes("tin") && fnameLower.includes("tin")) return true;
+            if (titleEnLower.includes("vat") && fnameLower.includes("vat")) return true;
+            if (titleEnLower.includes("solvency") && (fnameLower.includes("solvency") || fnameLower.includes("bank"))) return true;
+            if (titleEnLower.includes("technical") && (fnameLower.includes("tech") || fnameLower.includes("02"))) return true;
+            if (titleEnLower.includes("financial") && (fnameLower.includes("fin") || fnameLower.includes("01"))) return true;
+            if (titleEnLower.includes("experience") && fnameLower.includes("exp")) return true;
+
+            return fnameLower.includes(titleEnLower) || fnameLower.includes(titleBnLower);
+          });
+
+          if (matchedFile) {
+            newMatches[req.id] = matchedFile.name;
+          }
+        });
+
+        setMatches(newMatches);
+      };
+
+      const handleMatchSelect = (reqId, fileName) => {
+        if (!fileName) {
+          const updated = { ...matches };
+          delete updated[reqId];
+          setMatches(updated);
+          return;
+        }
+
+        const targetFile = uploadedFiles.find(f => f.name === fileName);
+        if (targetFile && targetFile.isDuplicate) {
+          setModalNotification({
+            title: t.duplicateMatchedTitle,
+            msg: t.duplicateMatchedMsg.replace('{filename}', fileName),
+            type: 'warning'
+          });
+          return;
+        }
+
+        const updatedMatches = { ...matches };
+        Object.keys(updatedMatches).forEach(k => {
+          if (updatedMatches[k] === fileName) {
+            delete updatedMatches[k];
+          }
+        });
+
+        updatedMatches[reqId] = fileName;
+        setMatches(updatedMatches);
+      };
+
+      const handleSaveProgress = () => {
+        const stateToSave = {
+          tenderData,
+          matches,
+          expiryDates,
+          uploadedMeta: uploadedFiles.map(f => ({ name: f.name, hash: f.hash, pageCount: f.pageCount }))
+        };
+        localStorage.setItem("tender_builder_snapshot", JSON.stringify(stateToSave));
+        setModalNotification({
+          title: "Progress Saved",
+          msg: "Your tender document checklist progress has been stored locally in browser storage.",
+          type: "info"
+        });
+      };
+
+      const handleRestoreProgress = () => {
+        const saved = localStorage.getItem("tender_builder_snapshot");
+        if (!saved) {
+          setModalNotification({
+            title: "No Saved Data",
+            msg: "No saved progress snapshot was found in your browser storage.",
+            type: "warning"
+          });
+          return;
+        }
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.tenderData) setTenderData(parsed.tenderData);
+          if (parsed.matches) setMatches(parsed.matches);
+          if (parsed.expiryDates) setExpiryDates(parsed.expiryDates);
+          setModalNotification({
+            title: "Progress Restored",
+            msg: "Your saved tender document checklist state was successfully loaded.",
+            type: "info"
+          });
+        } catch (e) {
+          console.error("Failed to restore:", e);
+        }
+      };
+
+      const handleRequirementsJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const parsed = JSON.parse(event.target.result);
+            if (parsed.tender && Array.isArray(parsed.requirements)) {
+              setTenderData(parsed);
+              setMatches({});
+              setExpiryDates({});
+              setModalNotification({
+                title: "Requirements Loaded",
+                msg: "Custom requirements.json file successfully imported.",
+                type: "success"
+              });
+            } else {
+              throw new Error("Invalid schema structure. Must contain 'tender' object and 'requirements' array.");
+            }
+          } catch (err) {
+            setModalNotification({
+              title: "JSON Import Error",
+              msg: err.message,
+              type: "error"
+            });
+          }
+        };
+        reader.readAsText(file);
+      };
+
+      const requirementStatuses = tenderData.requirements.map(req => {
+        const matchedFile = uploadedFiles.find(f => f.name === matches[req.id]);
+        const status = computeDocumentStatus(req, matchedFile, expiryDates[req.id], tenderData.tender.submission_deadline);
+        return { req, matchedFile, status };
+      });
+
+      const hasBlockingStatus = requirementStatuses.some(item => 
+        item.status === 'MISSING' || item.status === 'EXPIRY_NEEDED' || item.status === 'EXPIRED'
+      ) || uploadedFiles.some(f => f.isDuplicate && Object.values(matches).includes(f.name));
+
+      const handleGeneratePackage = async () => {
+        if (hasBlockingStatus) return;
+
+        setIsGenerating(true);
+        try {
+          const matchedDocsList = tenderData.requirements.map(req => {
+            const file = uploadedFiles.find(f => f.name === matches[req.id]);
+            const expiryDate = expiryDates[req.id];
+            return { req, file, expiryDate };
+          });
+
+          const pdfBlob = await generatePdfPackage(tenderData, matchedDocsList);
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${tenderData.tender.tender_id}_Package.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          setModalNotification({
+            title: "Package Generated",
+            msg: t.packageGeneratedSuccess,
+            type: "success"
+          });
+        } catch (error) {
+          console.error("PDF generation failed:", error);
+          setModalNotification({
+            title: "Generation Error",
+            msg: "Failed to generate PDF package: " + error.message,
+            type: "error"
+          });
+        } finally {
+          setIsGenerating(false);
+        }
+      };
+
+      const handleAiSubmit = async () => {
+        if (!aiPrompt.trim()) return;
+        setAiLoading(true);
+        setAiResult("");
+        try {
+          if (aiKey.trim()) {
+            localStorage.setItem("ai_api_key", aiKey);
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiKey}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [{ text: `You are an expert Tender Compliance Assistant. Analyze this request for Tender ${tenderData.tender.tender_id}:\n${aiPrompt}` }]
+                }]
+              })
+            });
+            const data = await response.json();
+            if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+              setAiResult(data.candidates[0].content.parts[0].text);
+            } else if (data.error) {
+              setAiResult(`API Error: ${data.error.message}`);
+            } else {
+              setAiResult("Could not parse AI response.");
+            }
+          } else {
+            setTimeout(() => {
+              setAiResult("Sample AI Advice: All required documents (Trade License, TIN, VAT, Bank Solvency, Proposals) should be matched with valid expiry dates extending beyond " + tenderData.tender.submission_deadline);
+            }, 800);
+          }
+        } catch (err) {
+          setAiResult("Failed to query AI model: " + err.message);
+        } finally {
+          setAiLoading(false);
+        }
+      };
+
+      return (
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+          
+          {/* Header Bar */}
+          <header className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="p-2 bg-brand-50 rounded-lg text-brand-600">
+                  <IconFileText />
+                </span>
+                <h1 className="text-2xl font-bold text-slate-900">{t.appTitle}</h1>
+              </div>
+              <p className="text-sm text-slate-500 mt-1">{t.appSubtitle}</p>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-3">
+              <button 
+                onClick={() => setLang(lang === 'en' ? 'bn' : 'en')}
+                className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-sm font-medium flex items-center gap-1.5 transition"
+              >
+                <IconGlobe />
+                <span>{t.langToggle}</span>
+              </button>
+
+              <button 
+                onClick={() => setTenderData(SAMPLE_REQUIREMENTS_JSON)}
+                className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-sm font-medium transition"
+              >
+                {t.loadSampleData}
+              </button>
+
+              <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium cursor-pointer transition">
+                {t.uploadJson}
+                <input type="file" accept=".json" onChange={handleRequirementsJsonUpload} className="hidden" />
+              </label>
+            </div>
+          </header>
+
+          {/* Tender Metadata Card */}
+          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">{t.tenderMetaTitle}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{t.tenderId}</p>
+                <p className="text-base font-bold text-slate-800">{tenderData.tender.tender_id}</p>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{t.title}</p>
+                <p className="text-base font-semibold text-slate-800 truncate" title={tenderData.tender.title}>{tenderData.tender.title}</p>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{t.procuringEntity}</p>
+                <p className="text-base font-semibold text-slate-800 truncate">{tenderData.tender.procuring_entity}</p>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{t.bidder}</p>
+                <p className="text-base font-semibold text-slate-800 truncate">{tenderData.tender.bidder}</p>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{t.deadline}</p>
+                <p className="text-base font-bold text-brand-600">{tenderData.tender.submission_deadline}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* PDF File Upload & File List */}
+          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">{t.uploadPdfsHeader}</h2>
+            
+            <label className="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-brand-50/20 transition group">
+              <div className="p-3 bg-white rounded-full shadow-sm text-brand-500 group-hover:scale-110 transition">
+                <IconUpload />
+              </div>
+              <span className="mt-3 text-sm font-semibold text-slate-700">{t.dragDropText}</span>
+              <span className="text-xs text-slate-400 mt-1">{t.pdfOnlyWarning}</span>
+              <input type="file" multiple accept="application/pdf" onChange={handleFileUpload} className="hidden" />
+            </label>
+
+            {/* Uploaded File List */}
+            <div className="mt-6">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">{t.filesUploaded} ({uploadedFiles.length})</h3>
+              {uploadedFiles.length === 0 ? (
+                <p className="text-sm text-slate-400 italic bg-slate-50 p-4 rounded-lg text-center">{t.noFilesYet}</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                  {uploadedFiles.map(file => (
+                    <div key={file.id} className={`p-3 rounded-lg border flex items-center justify-between text-xs ${file.isDuplicate ? 'bg-amber-50 border-amber-300' : !file.valid ? 'bg-rose-50 border-rose-300' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className="flex items-center gap-2 overflow-hidden mr-2">
+                        <span className="text-slate-500 flex-shrink-0"><IconFileText /></span>
+                        <div className="truncate">
+                          <p className="font-semibold text-slate-800 truncate" title={file.name}>{file.name}</p>
+                          <p className="text-slate-500 text-[11px]">
+                            {file.valid ? `${file.pageCount} ${t.pageCount}` : <span className="text-rose-600">{t.corruptBadge}</span>}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {file.isDuplicate && (
+                          <span className="bg-amber-200 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded" title={t.duplicateTooltip}>
+                            DUPLICATE
+                          </span>
+                        )}
+                        <button onClick={() => handleRemoveFile(file.name)} className="text-slate-400 hover:text-rose-600 transition p-1">
+                          <IconTrash />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Checklist & Document Matching Table */}
+          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+              <h2 className="text-lg font-semibold text-slate-800">{t.checklistHeader}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={handleAutoMatch} className="px-3 py-1.5 bg-brand-50 text-brand-600 hover:bg-brand-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  <IconSparkles /> {t.autoMatchBtn}
+                </button>
+                <button onClick={() => setMatches({})} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  <IconRefresh /> {t.resetMatchesBtn}
+                </button>
+                <button onClick={handleSaveProgress} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  <IconSave /> {t.saveProgressBtn}
+                </button>
+                <button onClick={handleRestoreProgress} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  {t.loadProgressBtn}
+                </button>
+                <button onClick={() => exportChecklistCsv(tenderData, tenderData.requirements, matches, uploadedFiles, expiryDates, lang)} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                  <IconSpreadsheet /> {t.exportCsvBtn}
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto border border-slate-200 rounded-lg">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-100 text-slate-600 text-xs uppercase border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-3 w-12 text-center">{t.orderHeader}</th>
+                    <th className="py-3 px-4">{t.requirementHeader}</th>
+                    <th className="py-3 px-3 w-28 text-center">{t.typeHeader}</th>
+                    <th className="py-3 px-4">{t.matchedFileHeader}</th>
+                    <th className="py-3 px-4 w-40">{t.expiryDateHeader}</th>
+                    <th className="py-3 px-3 w-32 text-center">{t.statusHeader}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {tenderData.requirements.sort((a,b) => a.order - b.order).map(req => {
+                    const matchedFileName = matches[req.id] || "";
+                    const matchedFile = uploadedFiles.find(f => f.name === matchedFileName);
+                    const status = computeDocumentStatus(req, matchedFile, expiryDates[req.id], tenderData.tender.submission_deadline);
+
+                    let statusBadge = null;
+                    if (status === 'OK') {
+                      statusBadge = <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconCheckCircle /> {t.statusOk}</span>;
+                    } else if (status === 'MISSING') {
+                      statusBadge = <span className="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusMissing}</span>;
+                    } else if (status === 'EXPIRY_NEEDED') {
+                      statusBadge = <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertTriangle /> {t.statusExpiryNeeded}</span>;
+                    } else if (status === 'EXPIRED') {
+                      statusBadge = <span className="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusExpired}</span>;
+                    } else {
+                      statusBadge = <span className="bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded-full text-xs font-medium">{t.statusNotProvided}</span>;
+                    }
+
+                    return (
+                      <tr key={req.id} className="hover:bg-slate-50/50">
+                        <td className="py-3 px-3 text-center font-bold text-slate-500">{req.order}</td>
+                        <td className="py-3 px-4">
+                          <p className="font-semibold text-slate-800">{lang === 'bn' ? req.title_bn : req.title_en}</p>
+                          <p className="text-xs text-slate-400">{lang === 'bn' ? req.title_en : req.title_bn}</p>
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${req.mandatory ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {req.mandatory ? t.mandatory : t.optional}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <select 
+                            value={matchedFileName}
+                            onChange={(e) => handleMatchSelect(req.id, e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                          >
+                            <option value="">{t.selectFilePrompt}</option>
+                            {uploadedFiles.map(f => (
+                              <option key={f.id} value={f.name} disabled={!f.valid}>
+                                {f.name} {f.isDuplicate ? " (DUPLICATE)" : ""}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-3 px-4">
+                          {req.has_expiry ? (
+                            <input 
+                              type="date"
+                              value={expiryDates[req.id] || ""}
+                              onChange={(e) => setExpiryDates({ ...expiryDates, [req.id]: e.target.value })}
+                              className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            />
+                          ) : (
+                            <span className="text-xs text-slate-400 italic">N/A</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          {statusBadge}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Final Action & Blocking Alert */}
+            <div className="mt-6 pt-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-slate-500 max-w-xl">
+                {hasBlockingStatus && (
+                  <p className="text-rose-600 font-semibold flex items-center gap-1">
+                    <IconAlertCircle /> {t.blockingNotice}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleGeneratePackage}
+                disabled={hasBlockingStatus || isGenerating}
+                className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition ${
+                  hasBlockingStatus || isGenerating
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-500/20'
+                }`}
+              >
+                <IconDownload />
+                <span>{isGenerating ? "Generating PDF..." : t.generatePackageBtn}</span>
+              </button>
+            </div>
+          </section>
+
+          {/* AI Assistant Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-800 mb-2 flex items-center gap-2">
+              <span className="text-brand-600"><IconSparkles /></span>
+              {t.aiHelpTitle}
+            </h2>
+            <div className="space-y-3">
+              <input 
+                type="password"
+                placeholder={t.aiApiKeyPrompt}
+                value={aiKey}
+                onChange={(e) => setAiKey(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+              />
+              <textarea 
+                rows="2"
+                placeholder={t.aiPromptPlaceholder}
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] text-slate-400">{t.aiDisclaimer}</p>
+                <button 
+                  onClick={handleAiSubmit}
+                  disabled={aiLoading}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition"
+                >
+                  {aiLoading ? "Analyzing..." : t.aiSubmitBtn}
+                </button>
+              </div>
+
+              {aiResult && (
+                <div className="mt-4 p-4 bg-brand-50/50 border border-brand-100 rounded-lg text-xs text-slate-800 whitespace-pre-wrap">
+                  {aiResult}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Notification Modal */}
+          {modalNotification && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl shadow-xl border max-w-md w-full p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-900">{modalNotification.title}</h3>
+                  <button onClick={() => setModalNotification(null)} className="text-slate-400 hover:text-slate-600">
+                    <IconX />
+                  </button>
+                </div>
+                <p className="text-sm text-slate-600">{modalNotification.msg}</p>
+                <div className="flex justify-end pt-2">
+                  <button 
+                    onClick={() => setModalNotification(null)}
+                    className="px-4 py-2 bg-brand-600 text-white font-semibold text-xs rounded-lg hover:bg-brand-700 transition"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
