@@ -15,19 +15,25 @@
   
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'Hind Siliguri', 'sans-serif'],
           },
           colors: {
-            brand: {
-              50: '#f0f7ff',
-              100: '#e0effe',
-              500: '#2563eb',
-              600: '#1d4ed8',
-              700: '#1e40af',
-              900: '#1e3a8a',
+            midnight: {
+              950: '#070a12',
+              900: '#0b0f19',
+              850: '#111726',
+              800: '#182238',
+              700: '#23314f',
+            },
+            accent: {
+              blue: '#3b82f6',
+              cyan: '#06b6d4',
+              indigo: '#6366f1',
+              violet: '#8b5cf6',
             }
           }
         }
@@ -44,27 +50,46 @@
   <style>
     body {
       font-family: 'Inter', 'Hind Siliguri', sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
+      background: #111726;
       border-radius: 4px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #23314f;
       border-radius: 4px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #3b82f6;
+    }
+    .glass-panel {
+      background: rgba(17, 23, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-input {
+      background: rgba(11, 15, 25, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
     }
   </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen text-slate-100 selection:bg-indigo-500 selection:text-white">
 
   <div id="root"></div>
 
@@ -76,7 +101,7 @@
         langToggle: "বাংলা",
         loadSampleData: "Load Sample Tender",
         uploadJson: "Upload requirements.json",
-        tenderMetaTitle: "Tender Details",
+        tenderMetaTitle: "Tender Overview",
         tenderId: "Tender ID",
         title: "Tender Title",
         procuringEntity: "Procuring Entity",
@@ -85,25 +110,25 @@
         uploadPdfsHeader: "Upload Tender PDF Documents",
         dragDropText: "Click or Drag & Drop PDF files here",
         pdfOnlyWarning: "Only PDF files up to 50MB total are accepted",
-        filesUploaded: "Uploaded PDF Files",
+        filesUploaded: "Uploaded PDF Repository",
         noFilesYet: "No PDF files uploaded yet.",
         pageCount: "pages",
         duplicateBadge: "DUPLICATE CONTENT",
         duplicateTooltip: "Exact file content already uploaded. Cannot be matched.",
         corruptBadge: "INVALID / PROTECTED PDF",
         removeFile: "Remove",
-        checklistHeader: "Document Matching Checklist",
+        checklistHeader: "Document Verification Checklist",
         orderHeader: "Order",
         requirementHeader: "Required Document",
-        typeHeader: "Requirement",
-        matchedFileHeader: "Matched File",
+        typeHeader: "Type",
+        matchedFileHeader: "Matched PDF File",
         expiryDateHeader: "Expiry Date",
         statusHeader: "Status",
         selectFilePrompt: "-- Select Matched PDF --",
         mandatory: "Mandatory",
         optional: "Optional",
         autoMatchBtn: "Auto-Match Files",
-        resetMatchesBtn: "Reset All Matches",
+        resetMatchesBtn: "Reset Matches",
         saveProgressBtn: "Save Progress",
         loadProgressBtn: "Restore Progress",
         exportCsvBtn: "Export CSV Checklist",
@@ -116,8 +141,8 @@
         blockingNotice: "Resolve all blocking issues (Missing, Expired, Expiry Needed, or Duplicates) to enable PDF package creation.",
         nonPdfErrorTitle: "Invalid File Format",
         nonPdfErrorMsg: "File '{filename}' is not a valid PDF file and was rejected.",
-        duplicateMatchedTitle: "Duplicate File Selection Error",
-        duplicateMatchedMsg: "File '{filename}' has duplicate content identical to another uploaded file. Please remove the duplicate before proceeding.",
+        duplicateMatchedTitle: "Duplicate File Error",
+        duplicateMatchedMsg: "File '{filename}' has duplicate content identical to another uploaded file. Please resolve duplicates first.",
         packageGeneratedSuccess: "Tender document package successfully generated!",
         aiHelpTitle: "AI Tender Assistant (Optional)",
         aiPromptPlaceholder: "Ask AI for compliance check or file matching advice...",
@@ -136,23 +161,23 @@
         title: "টেন্ডারের শিরোনাম",
         procuringEntity: "প্রোকিউরিং এনটিটি",
         bidder: "বিডারের নাম",
-        deadline: "জমা দেওয়ার শেষ তারিখ",
+        deadline: "জমা দেওয়ার শেষ তারিখ",
         uploadPdfsHeader: "টেন্ডার পিডিএফ ফাইল আপলোড করুন",
         dragDropText: "পিডিএফ ফাইল সিলেক্ট বা ড্রাগ-অ্যান্ড-ড্রপ করুন",
         pdfOnlyWarning: "শুধু পিডিএফ ফাইল গ্রহণযোগ্য (সর্বোচ্চ ৫০ মেগাবাইট)",
         filesUploaded: "আপলোডকৃত পিডিএফ ফাইলসমূহ",
-        noFilesYet: "এখনো কোনো পিডিএফ ফাইল আপলোড করা হয়নি।",
+        noFilesYet: "এখনো কোনো পিডিএফ ফাইল আপলোড করা হয়নি।",
         pageCount: "পৃষ্ঠা",
         duplicateBadge: "ডুপ্লিকেট কন্টেন্ট",
-        duplicateTooltip: "একই কন্টেন্টের ফাইল ইতিমধ্যে আপলোড করা হয়েছে।",
-        corruptBadge: "ত্রুটিপূর্ণ / পাসওয়ার্ড প্রটেক্টেড",
+        duplicateTooltip: "একই কন্টেন্টের ফাইল ইতিমধ্যে আপলোড করা হয়েছে।",
+        corruptBadge: "ত্রুটিপূর্ণ / পাসওয়ার্ড প্রটেক্টেড",
         removeFile: "মুছে ফেলুন",
         checklistHeader: "নথিপত্র ম্যাচিং চেকলিস্ট",
         orderHeader: "ক্রম",
-        requirementHeader: "প্রয়োজনীয় নথিপত্র",
+        requirementHeader: "প্রয়োজনীয় নথিপত্র",
         typeHeader: "ধরন",
         matchedFileHeader: "ম্যাচকৃত ফাইল",
-        expiryDateHeader: "মেয়াদ উত্তীর্ণের তারিখ",
+        expiryDateHeader: "মেয়াদ উত্তীর্ণের তারিখ",
         statusHeader: "স্ট্যাটাস",
         selectFilePrompt: "-- সংযুক্ত ফাইল নির্বাচন করুন --",
         mandatory: "আবশ্যক",
@@ -164,18 +189,18 @@
         exportCsvBtn: "সিএসভি চেকলিস্ট এক্সপোর্ট",
         generatePackageBtn: "প্যাকেজ পিডিএফ তৈরি ও ডাউনলোড করুন",
         statusMissing: "অনুপস্থিত",
-        statusExpiryNeeded: "তারিখ প্রয়োজন",
-        statusExpired: "মেয়াদউত্তীর্ণ",
-        statusNotProvided: "প্রদান করা হয়নি",
+        statusExpiryNeeded: "তারিখ প্রয়োজন",
+        statusExpired: "মেয়াদউত্তীর্ণ",
+        statusNotProvided: "প্রদান করা হয়নি",
         statusOk: "ঠিক আছে",
-        blockingNotice: "প্যাকেজ পিডিএফ তৈরি করতে সকল ব্লক করা সমস্যা (অনুপস্থিত, মেয়াদউত্তীর্ণ বা ডুপ্লিকেট ফাইল) সমাধান করুন।",
+        blockingNotice: "প্যাকেজ পিডিএফ তৈরি করতে সকল ব্লক করা সমস্যা (অনুপস্থিত, মেয়াদউত্তীর্ণ বা ডুপ্লিকেট ফাইল) সমাধান করুন।",
         nonPdfErrorTitle: "অকার্যকর ফাইল ফরম্যাট",
-        nonPdfErrorMsg: "'{filename}' ফাইলটি পিডিএফ নয় এবং বাতিল করা হয়েছে।",
+        nonPdfErrorMsg: "'{filename}' ফাইলটি পিডিএফ নয় এবং বাতিল করা হয়েছে।",
         duplicateMatchedTitle: "ডুপ্লিকেট ফাইল সিলেকশন ত্রুটি",
         duplicateMatchedMsg: "'{filename}' ফাইলটির কন্টেন্ট অন্য ফাইলের হুবহু এক। অনুগ্রহ করে ডুপ্লিকেট সমাধান করুন।",
-        packageGeneratedSuccess: "টেন্ডার ডকুমেন্ট প্যাকেজ সফলভাবে তৈরি হয়েছে!",
+        packageGeneratedSuccess: "টেন্ডার ডকুমেন্ট প্যাকেজ সফলভাবে তৈরি হয়েছে!",
         aiHelpTitle: "এআই টেন্ডার অ্যাসিস্ট্যান্ট (ঐচ্ছিক)",
-        aiPromptPlaceholder: "টেন্ডার কমপ্লায়েন্স বা ফাইল ম্যাচিং সম্পর্কে এআই প্রশ্ন করুন...",
+        aiPromptPlaceholder: "টেন্ডার কমপ্লায়েন্স বা ফাইল ম্যাচিং সম্পর্কে এআই প্রশ্ন করুন...",
         aiApiKeyPrompt: "আপনার এআই এপিআই কি দিন (শুধু ব্রাউজারে সংরক্ষিত থাকবে)",
         aiSubmitBtn: "এআই অ্যানালাইসিস করুন",
         aiDisclaimer: "রুল ৫.৫: কোনো এপিআই কি কোড বা সার্ভারে সেভ হবে না।"
@@ -271,7 +296,7 @@
       }
 
       if (matchedFile.isDuplicate) {
-        return 'MISSING'; // Duplicates are blocked
+        return 'MISSING';
       }
 
       if (req.has_expiry) {
@@ -303,7 +328,7 @@
         .filter(item => item.file && item.file.valid)
         .sort((a, b) => a.req.order - b.req.order);
 
-      // --- 1. COVER PAGE ---
+      // 1. COVER PAGE
       const coverPage = mergedPdf.addPage([595.28, 841.89]);
       const { width, height } = coverPage.getSize();
 
@@ -312,7 +337,7 @@
         y: height - 100,
         width: width,
         height: 100,
-        color: PDFLib.rgb(0.09, 0.23, 0.45)
+        color: PDFLib.rgb(0.06, 0.09, 0.16)
       });
 
       coverPage.drawText("TENDER DOCUMENT PACKAGE", {
@@ -328,12 +353,12 @@
         y: height - 75,
         size: 11,
         font: fontRegular,
-        color: PDFLib.rgb(0.8, 0.9, 1)
+        color: PDFLib.rgb(0.38, 0.51, 0.96)
       });
 
       let currentY = height - 140;
       const drawMetaRow = (label, value) => {
-        coverPage.drawText(label, { x: 40, y: currentY, size: 10, font: fontBold, color: PDFLib.rgb(0.2, 0.3, 0.4) });
+        coverPage.drawText(label, { x: 40, y: currentY, size: 10, font: fontBold, color: PDFLib.rgb(0.4, 0.5, 0.6) });
         coverPage.drawText(value || 'N/A', { x: 180, y: currentY, size: 10, font: fontRegular, color: PDFLib.rgb(0.1, 0.1, 0.1) });
         currentY -= 20;
       };
@@ -350,7 +375,7 @@
         start: { x: 40, y: currentY },
         end: { x: width - 40, y: currentY },
         thickness: 1,
-        color: PDFLib.rgb(0.85, 0.85, 0.85)
+        color: PDFLib.rgb(0.85, 0.88, 0.92)
       });
 
       currentY -= 30;
@@ -359,7 +384,7 @@
         y: currentY,
         size: 13,
         font: fontBold,
-        color: PDFLib.rgb(0.09, 0.23, 0.45)
+        color: PDFLib.rgb(0.09, 0.15, 0.28)
       });
 
       currentY -= 20;
@@ -381,20 +406,16 @@
 
       activeDocs.forEach((docItem) => {
         coverPage.drawText(`${docItem.req.order}`, { x: 45, y: currentY, size: 9, font: fontRegular });
-        
         const truncatedTitle = docItem.req.title_en.length > 32 ? docItem.req.title_en.substring(0, 30) + '..' : docItem.req.title_en;
         coverPage.drawText(truncatedTitle, { x: 70, y: currentY, size: 9, font: fontRegular });
-
         const truncatedFile = docItem.file.name.length > 32 ? docItem.file.name.substring(0, 30) + '..' : docItem.file.name;
         coverPage.drawText(truncatedFile, { x: 260, y: currentY, size: 9, font: fontRegular });
-
         coverPage.drawText(`${docItem.file.pageCount}`, { x: 450, y: currentY, size: 9, font: fontRegular });
         coverPage.drawText(docItem.expiryDate || 'N/A', { x: 500, y: currentY, size: 9, font: fontRegular });
-
         currentY -= 18;
       });
 
-      // --- 2. INDEX / TABLE OF CONTENTS PAGE ---
+      // 2. INDEX PAGE
       const indexPage = mergedPdf.addPage([595.28, 841.89]);
       let indexY = height - 60;
 
@@ -403,7 +424,7 @@
         y: indexY,
         size: 18,
         font: fontBold,
-        color: PDFLib.rgb(0.09, 0.23, 0.45)
+        color: PDFLib.rgb(0.09, 0.15, 0.28)
       });
 
       indexY -= 30;
@@ -424,25 +445,22 @@
       let currentDocStartPage = 3;
 
       activeDocs.forEach((docItem) => {
-        const startPg = currentDocStartPage;
-
         indexPage.drawText(`[${docItem.req.order}]`, { x: 50, y: indexY, size: 10, font: fontRegular });
         indexPage.drawText(docItem.req.title_en, { x: 100, y: indexY, size: 10, font: fontRegular });
         indexPage.drawText(`${docItem.file.pageCount}`, { x: 380, y: indexY, size: 10, font: fontRegular });
-        indexPage.drawText(`Page ${startPg}`, { x: 470, y: indexY, size: 10, font: fontBold, color: PDFLib.rgb(0.1, 0.4, 0.8) });
-
+        indexPage.drawText(`Page ${currentDocStartPage}`, { x: 470, y: indexY, size: 10, font: fontBold, color: PDFLib.rgb(0.23, 0.51, 0.96) });
         indexY -= 22;
         currentDocStartPage += docItem.file.pageCount;
       });
 
-      // --- 3. MERGE DOCUMENT PAGES ---
+      // 3. MERGE PAGES
       for (const item of activeDocs) {
         const srcPdf = await PDFLib.PDFDocument.load(item.file.arrayBuffer, { ignoreEncryption: true });
         const copiedPages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
         copiedPages.forEach(page => mergedPdf.addPage(page));
       }
 
-      // --- 4. DRAW FOOTERS ---
+      // 4. FOOTERS
       const totalPages = mergedPdf.getPageCount();
       const allPages = mergedPdf.getPages();
 
@@ -456,7 +474,7 @@
           width: width - 80,
           height: 18,
           color: PDFLib.rgb(0.97, 0.98, 0.99),
-          borderColor: PDFLib.rgb(0.9, 0.9, 0.9),
+          borderColor: PDFLib.rgb(0.85, 0.88, 0.92),
           borderWidth: 0.5
         });
 
@@ -817,24 +835,32 @@
       };
 
       return (
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
           
-          {/* Header Bar */}
-          <header className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="p-2 bg-brand-50 rounded-lg text-brand-600">
+          {/* Top Executive Navbar Header */}
+          <header className="glass-panel rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3">
+                <span className="p-2.5 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-xl text-white shadow-lg shadow-indigo-500/30">
                   <IconFileText />
                 </span>
-                <h1 className="text-2xl font-bold text-slate-900">{t.appTitle}</h1>
+                <div>
+                  <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                    {t.appTitle}
+                  </h1>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    {t.appSubtitle}
+                  </span>
+                </div>
               </div>
-              <p className="text-sm text-slate-500 mt-1">{t.appSubtitle}</p>
             </div>
             
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 relative z-10">
               <button 
                 onClick={() => setLang(lang === 'en' ? 'bn' : 'en')}
-                className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-sm font-medium flex items-center gap-1.5 transition"
+                className="px-3.5 py-2 glass-input hover:bg-slate-800 rounded-xl text-xs font-semibold flex items-center gap-2 transition"
               >
                 <IconGlobe />
                 <span>{t.langToggle}</span>
@@ -842,84 +868,96 @@
 
               <button 
                 onClick={() => setTenderData(SAMPLE_REQUIREMENTS_JSON)}
-                className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-sm font-medium transition"
+                className="px-3.5 py-2 glass-input hover:bg-slate-800 rounded-xl text-xs font-semibold transition"
               >
                 {t.loadSampleData}
               </button>
 
-              <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium cursor-pointer transition">
+              <label className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold cursor-pointer shadow-lg shadow-indigo-600/25 transition">
                 {t.uploadJson}
                 <input type="file" accept=".json" onChange={handleRequirementsJsonUpload} className="hidden" />
               </label>
             </div>
           </header>
 
-          {/* Tender Metadata Card */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">{t.tenderMetaTitle}</h2>
+          {/* Tender Meta Cards */}
+          <section className="glass-panel rounded-2xl p-6">
+            <h2 className="text-xs font-bold tracking-wider uppercase text-slate-400 mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              {t.tenderMetaTitle}
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase">{t.tenderId}</p>
-                <p className="text-base font-bold text-slate-800">{tenderData.tender.tender_id}</p>
+              <div className="bg-midnight-950/70 p-4 rounded-xl border border-slate-800">
+                <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{t.tenderId}</p>
+                <p className="text-lg font-black text-cyan-400 mt-1">{tenderData.tender.tender_id}</p>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase">{t.title}</p>
-                <p className="text-base font-semibold text-slate-800 truncate" title={tenderData.tender.title}>{tenderData.tender.title}</p>
+              <div className="bg-midnight-950/70 p-4 rounded-xl border border-slate-800">
+                <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{t.title}</p>
+                <p className="text-sm font-semibold text-slate-200 mt-1 truncate" title={tenderData.tender.title}>{tenderData.tender.title}</p>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase">{t.procuringEntity}</p>
-                <p className="text-base font-semibold text-slate-800 truncate">{tenderData.tender.procuring_entity}</p>
+              <div className="bg-midnight-950/70 p-4 rounded-xl border border-slate-800">
+                <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{t.procuringEntity}</p>
+                <p className="text-sm font-semibold text-slate-200 mt-1 truncate">{tenderData.tender.procuring_entity}</p>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase">{t.bidder}</p>
-                <p className="text-base font-semibold text-slate-800 truncate">{tenderData.tender.bidder}</p>
+              <div className="bg-midnight-950/70 p-4 rounded-xl border border-slate-800">
+                <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{t.bidder}</p>
+                <p className="text-sm font-semibold text-slate-200 mt-1 truncate">{tenderData.tender.bidder}</p>
               </div>
-              <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <p className="text-xs font-semibold text-slate-500 uppercase">{t.deadline}</p>
-                <p className="text-base font-bold text-brand-600">{tenderData.tender.submission_deadline}</p>
+              <div className="bg-midnight-950/70 p-4 rounded-xl border border-slate-800">
+                <p className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">{t.deadline}</p>
+                <p className="text-sm font-bold text-indigo-400 mt-1">{tenderData.tender.submission_deadline}</p>
               </div>
             </div>
           </section>
 
-          {/* PDF File Upload & File List */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">{t.uploadPdfsHeader}</h2>
+          {/* Upload Dropzone & File List */}
+          <section className="glass-panel rounded-2xl p-6">
+            <h2 className="text-base font-bold text-slate-200 mb-4">{t.uploadPdfsHeader}</h2>
             
-            <label className="border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-brand-50/20 transition group">
-              <div className="p-3 bg-white rounded-full shadow-sm text-brand-500 group-hover:scale-110 transition">
+            <label className="border-2 border-dashed border-slate-700/80 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer bg-midnight-950/50 hover:bg-slate-900/60 transition group">
+              <div className="p-4 bg-slate-800/80 text-indigo-400 rounded-2xl group-hover:scale-110 shadow-lg group-hover:text-cyan-400 transition">
                 <IconUpload />
               </div>
-              <span className="mt-3 text-sm font-semibold text-slate-700">{t.dragDropText}</span>
+              <span className="mt-4 text-sm font-semibold text-slate-200">{t.dragDropText}</span>
               <span className="text-xs text-slate-400 mt-1">{t.pdfOnlyWarning}</span>
               <input type="file" multiple accept="application/pdf" onChange={handleFileUpload} className="hidden" />
             </label>
 
-            {/* Uploaded File List */}
+            {/* Uploaded File Cards */}
             <div className="mt-6">
-              <h3 className="text-sm font-semibold text-slate-700 mb-3">{t.filesUploaded} ({uploadedFiles.length})</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t.filesUploaded} ({uploadedFiles.length})</h3>
               {uploadedFiles.length === 0 ? (
-                <p className="text-sm text-slate-400 italic bg-slate-50 p-4 rounded-lg text-center">{t.noFilesYet}</p>
+                <p className="text-xs text-slate-400 italic bg-midnight-950/60 p-4 rounded-xl text-center border border-slate-800/60">{t.noFilesYet}</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                   {uploadedFiles.map(file => (
-                    <div key={file.id} className={`p-3 rounded-lg border flex items-center justify-between text-xs ${file.isDuplicate ? 'bg-amber-50 border-amber-300' : !file.valid ? 'bg-rose-50 border-rose-300' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className="flex items-center gap-2 overflow-hidden mr-2">
-                        <span className="text-slate-500 flex-shrink-0"><IconFileText /></span>
+                    <div 
+                      key={file.id} 
+                      className={`p-3 rounded-xl border flex items-center justify-between text-xs transition ${
+                        file.isDuplicate 
+                          ? 'bg-amber-950/30 border-amber-500/40 text-amber-200' 
+                          : !file.valid 
+                            ? 'bg-rose-950/30 border-rose-500/40 text-rose-200' 
+                            : 'bg-midnight-950/80 border-slate-800 text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden mr-2">
+                        <span className="text-slate-400 flex-shrink-0"><IconFileText /></span>
                         <div className="truncate">
-                          <p className="font-semibold text-slate-800 truncate" title={file.name}>{file.name}</p>
-                          <p className="text-slate-500 text-[11px]">
-                            {file.valid ? `${file.pageCount} ${t.pageCount}` : <span className="text-rose-600">{t.corruptBadge}</span>}
+                          <p className="font-semibold text-slate-100 truncate" title={file.name}>{file.name}</p>
+                          <p className="text-slate-400 text-[11px]">
+                            {file.valid ? `${file.pageCount} ${t.pageCount}` : <span className="text-rose-400">{t.corruptBadge}</span>}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {file.isDuplicate && (
-                          <span className="bg-amber-200 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded" title={t.duplicateTooltip}>
+                          <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full" title={t.duplicateTooltip}>
                             DUPLICATE
                           </span>
                         )}
-                        <button onClick={() => handleRemoveFile(file.name)} className="text-slate-400 hover:text-rose-600 transition p-1">
+                        <button onClick={() => handleRemoveFile(file.name)} className="text-slate-500 hover:text-rose-400 transition p-1">
                           <IconTrash />
                         </button>
                       </div>
@@ -930,42 +968,42 @@
             </div>
           </section>
 
-          {/* Checklist & Document Matching Table */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-              <h2 className="text-lg font-semibold text-slate-800">{t.checklistHeader}</h2>
+          {/* Checklist Table */}
+          <section className="glass-panel rounded-2xl p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
+              <h2 className="text-base font-bold text-slate-200">{t.checklistHeader}</h2>
               <div className="flex flex-wrap items-center gap-2">
-                <button onClick={handleAutoMatch} className="px-3 py-1.5 bg-brand-50 text-brand-600 hover:bg-brand-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                <button onClick={handleAutoMatch} className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition">
                   <IconSparkles /> {t.autoMatchBtn}
                 </button>
-                <button onClick={() => setMatches({})} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                <button onClick={() => setMatches({})} className="px-3 py-1.5 glass-input hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
                   <IconRefresh /> {t.resetMatchesBtn}
                 </button>
-                <button onClick={handleSaveProgress} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                <button onClick={handleSaveProgress} className="px-3 py-1.5 glass-input hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
                   <IconSave /> {t.saveProgressBtn}
                 </button>
-                <button onClick={handleRestoreProgress} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                <button onClick={handleRestoreProgress} className="px-3 py-1.5 glass-input hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
                   {t.loadProgressBtn}
                 </button>
-                <button onClick={() => exportChecklistCsv(tenderData, tenderData.requirements, matches, uploadedFiles, expiryDates, lang)} className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
+                <button onClick={() => exportChecklistCsv(tenderData, tenderData.requirements, matches, uploadedFiles, expiryDates, lang)} className="px-3 py-1.5 glass-input hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
                   <IconSpreadsheet /> {t.exportCsvBtn}
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto border border-slate-200 rounded-lg">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-100 text-slate-600 text-xs uppercase border-b border-slate-200">
+            <div className="overflow-x-auto border border-slate-800 rounded-xl bg-midnight-950/60">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] font-bold tracking-wider border-b border-slate-800">
                   <tr>
-                    <th className="py-3 px-3 w-12 text-center">{t.orderHeader}</th>
-                    <th className="py-3 px-4">{t.requirementHeader}</th>
-                    <th className="py-3 px-3 w-28 text-center">{t.typeHeader}</th>
-                    <th className="py-3 px-4">{t.matchedFileHeader}</th>
-                    <th className="py-3 px-4 w-40">{t.expiryDateHeader}</th>
-                    <th className="py-3 px-3 w-32 text-center">{t.statusHeader}</th>
+                    <th className="py-3.5 px-3 w-12 text-center">{t.orderHeader}</th>
+                    <th className="py-3.5 px-4">{t.requirementHeader}</th>
+                    <th className="py-3.5 px-3 w-28 text-center">{t.typeHeader}</th>
+                    <th className="py-3.5 px-4">{t.matchedFileHeader}</th>
+                    <th className="py-3.5 px-4 w-40">{t.expiryDateHeader}</th>
+                    <th className="py-3.5 px-3 w-32 text-center">{t.statusHeader}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
+                <tbody className="divide-y divide-slate-800/80">
                   {tenderData.requirements.sort((a,b) => a.order - b.order).map(req => {
                     const matchedFileName = matches[req.id] || "";
                     const matchedFile = uploadedFiles.find(f => f.name === matchedFileName);
@@ -973,56 +1011,56 @@
 
                     let statusBadge = null;
                     if (status === 'OK') {
-                      statusBadge = <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconCheckCircle /> {t.statusOk}</span>;
+                      statusBadge = <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1"><IconCheckCircle /> {t.statusOk}</span>;
                     } else if (status === 'MISSING') {
-                      statusBadge = <span className="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusMissing}</span>;
+                      statusBadge = <span className="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusMissing}</span>;
                     } else if (status === 'EXPIRY_NEEDED') {
-                      statusBadge = <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertTriangle /> {t.statusExpiryNeeded}</span>;
+                      statusBadge = <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1"><IconAlertTriangle /> {t.statusExpiryNeeded}</span>;
                     } else if (status === 'EXPIRED') {
-                      statusBadge = <span className="bg-rose-100 text-rose-800 border border-rose-300 px-2 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusExpired}</span>;
+                      statusBadge = <span className="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1"><IconAlertCircle /> {t.statusExpired}</span>;
                     } else {
-                      statusBadge = <span className="bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded-full text-xs font-medium">{t.statusNotProvided}</span>;
+                      statusBadge = <span className="bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-1 rounded-full font-medium">{t.statusNotProvided}</span>;
                     }
 
                     return (
-                      <tr key={req.id} className="hover:bg-slate-50/50">
-                        <td className="py-3 px-3 text-center font-bold text-slate-500">{req.order}</td>
-                        <td className="py-3 px-4">
-                          <p className="font-semibold text-slate-800">{lang === 'bn' ? req.title_bn : req.title_en}</p>
-                          <p className="text-xs text-slate-400">{lang === 'bn' ? req.title_en : req.title_bn}</p>
+                      <tr key={req.id} className="hover:bg-slate-800/30 transition">
+                        <td className="py-3.5 px-3 text-center font-bold text-slate-400">{req.order}</td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-semibold text-slate-100">{lang === 'bn' ? req.title_bn : req.title_en}</p>
+                          <p className="text-[11px] text-slate-500">{lang === 'bn' ? req.title_en : req.title_bn}</p>
                         </td>
-                        <td className="py-3 px-3 text-center">
-                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${req.mandatory ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
+                        <td className="py-3.5 px-3 text-center">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${req.mandatory ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'bg-slate-800 text-slate-400'}`}>
                             {req.mandatory ? t.mandatory : t.optional}
                           </span>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3.5 px-4">
                           <select 
                             value={matchedFileName}
                             onChange={(e) => handleMatchSelect(req.id, e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full glass-input rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none"
                           >
-                            <option value="">{t.selectFilePrompt}</option>
+                            <option value="" className="bg-slate-900 text-slate-400">{t.selectFilePrompt}</option>
                             {uploadedFiles.map(f => (
-                              <option key={f.id} value={f.name} disabled={!f.valid}>
+                              <option key={f.id} value={f.name} disabled={!f.valid} className="bg-slate-900 text-slate-200">
                                 {f.name} {f.isDuplicate ? " (DUPLICATE)" : ""}
                               </option>
                             ))}
                           </select>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-3.5 px-4">
                           {req.has_expiry ? (
                             <input 
                               type="date"
                               value={expiryDates[req.id] || ""}
                               onChange={(e) => setExpiryDates({ ...expiryDates, [req.id]: e.target.value })}
-                              className="w-full bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              className="w-full glass-input rounded-xl px-3 py-1 text-xs text-slate-200 focus:outline-none"
                             />
                           ) : (
-                            <span className="text-xs text-slate-400 italic">N/A</span>
+                            <span className="text-xs text-slate-600 italic">N/A</span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-3.5 px-3 text-center">
                           {statusBadge}
                         </td>
                       </tr>
@@ -1032,11 +1070,11 @@
               </table>
             </div>
 
-            {/* Final Action & Blocking Alert */}
-            <div className="mt-6 pt-4 border-t flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="text-xs text-slate-500 max-w-xl">
+            {/* Bottom PDF Generation Action Banner */}
+            <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-slate-400 max-w-xl">
                 {hasBlockingStatus && (
-                  <p className="text-rose-600 font-semibold flex items-center gap-1">
+                  <p className="text-rose-400 font-medium flex items-center gap-1.5 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
                     <IconAlertCircle /> {t.blockingNotice}
                   </p>
                 )}
@@ -1045,73 +1083,73 @@
               <button
                 onClick={handleGeneratePackage}
                 disabled={hasBlockingStatus || isGenerating}
-                className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition ${
+                className={`px-6 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-xl transition ${
                   hasBlockingStatus || isGenerating
-                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                    : 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-500/20'
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                    : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-indigo-500/25'
                 }`}
               >
                 <IconDownload />
-                <span>{isGenerating ? "Generating PDF..." : t.generatePackageBtn}</span>
+                <span>{isGenerating ? "Generating Package..." : t.generatePackageBtn}</span>
               </button>
             </div>
           </section>
 
           {/* AI Assistant Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-2 flex items-center gap-2">
-              <span className="text-brand-600"><IconSparkles /></span>
+          <section className="glass-panel rounded-2xl p-6">
+            <h2 className="text-base font-bold text-slate-200 mb-2 flex items-center gap-2">
+              <span className="p-1.5 bg-indigo-500/20 text-indigo-400 rounded-lg"><IconSparkles /></span>
               {t.aiHelpTitle}
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-3 mt-4">
               <input 
                 type="password"
                 placeholder={t.aiApiKeyPrompt}
                 value={aiKey}
                 onChange={(e) => setAiKey(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full glass-input rounded-xl px-3.5 py-2 text-xs focus:outline-none"
               />
               <textarea 
                 rows="2"
                 placeholder={t.aiPromptPlaceholder}
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-lg p-3 text-xs focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full glass-input rounded-xl p-3.5 text-xs focus:outline-none"
               />
               <div className="flex items-center justify-between">
-                <p className="text-[11px] text-slate-400">{t.aiDisclaimer}</p>
+                <p className="text-[11px] text-slate-500">{t.aiDisclaimer}</p>
                 <button 
                   onClick={handleAiSubmit}
                   disabled={aiLoading}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition"
                 >
                   {aiLoading ? "Analyzing..." : t.aiSubmitBtn}
                 </button>
               </div>
 
               {aiResult && (
-                <div className="mt-4 p-4 bg-brand-50/50 border border-brand-100 rounded-lg text-xs text-slate-800 whitespace-pre-wrap">
+                <div className="mt-4 p-4 bg-midnight-950/90 border border-indigo-500/30 rounded-xl text-xs text-indigo-200 whitespace-pre-wrap">
                   {aiResult}
                 </div>
               )}
             </div>
           </section>
 
-          {/* Notification Modal */}
+          {/* Custom Notification Modal */}
           {modalNotification && (
-            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-xl shadow-xl border max-w-md w-full p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900">{modalNotification.title}</h3>
-                  <button onClick={() => setModalNotification(null)} className="text-slate-400 hover:text-slate-600">
+            <div className="fixed inset-0 bg-midnight-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+              <div className="bg-midnight-900 border border-slate-700 rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-slate-100">{modalNotification.title}</h3>
+                  <button onClick={() => setModalNotification(null)} className="text-slate-500 hover:text-slate-300">
                     <IconX />
                   </button>
                 </div>
-                <p className="text-sm text-slate-600">{modalNotification.msg}</p>
+                <p className="text-sm text-slate-300">{modalNotification.msg}</p>
                 <div className="flex justify-end pt-2">
                   <button 
                     onClick={() => setModalNotification(null)}
-                    className="px-4 py-2 bg-brand-600 text-white font-semibold text-xs rounded-lg hover:bg-brand-700 transition"
+                    className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg transition"
                   >
                     OK
                   </button>
